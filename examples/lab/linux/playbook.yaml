@@ -1,0 +1,16 @@
+- name: Configura servidor dhcp
+  hosts: dhcpserver
+  gather_facts: false
+  #strategy: free
+  roles:
+  - docker
+  - dnsmasq
+
+- name: Configura servidor dhcp
+  hosts: webserver
+  gather_facts: false
+  #strategy: free
+  roles:
+  - docker
+  - nginx
+

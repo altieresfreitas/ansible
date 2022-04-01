@@ -1,0 +1,18 @@
+---
+# handlers file for docker
+
+# - name: check docker version
+#   shell: docker -v
+
+- name: enable docker service
+  service:
+    name: docker
+    enabled: true
+
+# - name: check docker service status
+#   shell: systemctl status docker
+
+- name: restart docker
+  service:
+    name: docker
+    state: restarted

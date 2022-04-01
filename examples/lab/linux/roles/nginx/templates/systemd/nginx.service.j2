@@ -1,0 +1,17 @@
+[Unit]
+Description=nginx Container
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker stop nginx
+ExecStartPre=-/usr/bin/docker rm nginx
+ExecStartPre=/usr/bin/docker pull 4km3/nginx:{{ tag }}
+ExecStart=docker run --name nginx --cap-add=NET_ADMIN  \
+                    --net=host -v /etc/nginx:/etc/nginx \
+                    {{ image }}:{{ tag }}
+
+[Install]
+WantedBy=multi-user.target

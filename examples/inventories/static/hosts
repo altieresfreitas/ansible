@@ -1,0 +1,14 @@
+[prod]
+prd-server1
+prd-server2
+
+[dev]
+dev-server1
+dev-server2
+
+[prod:vars]
+ntp=ntp.prod.intranet
+
+[dev:vars]
+
+ntp=ntp.dev.intranet

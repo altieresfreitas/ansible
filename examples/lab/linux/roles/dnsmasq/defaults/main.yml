@@ -1,0 +1,4 @@
+---
+# defaults file for dnsmasq
+image: 4km3/dnsmasq
+tag: 2.85-r2-alpine-3.14

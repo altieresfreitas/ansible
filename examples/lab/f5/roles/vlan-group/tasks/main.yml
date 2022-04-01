@@ -1,0 +1,30 @@
+---
+# tasks file for vlan-group
+- name: get all vlan groups
+  uri:
+    url: https://{{ inventory_hostname }}/mgmt/tm/net/vlan-group
+    method: GET
+    status_code: [200, 202]
+    validate_certs: false
+    return_content: true
+    headers:
+      Authorization: "Basic {{ f5.token }}"
+  register: vlan_groups
+  delegate_to: 127.0.0.1
+
+- name: create vlan group whether not exists
+  vars:
+    query: 'items[*].name'
+  uri:
+    url: https://{{ inventory_hostname }}/mgmt/tm/net/vlan-group
+    method: POST
+    status_code: [200, 201]
+    validate_certs: false
+    return_content: true
+    body_format: json
+    headers:
+      Authorization: "Basic {{ f5.token }}"
+      Content-Type: "application/json"
+    body: "{{ lookup('template', 'templates/vlan-group.yml') | from_yaml }}"
+  when: name not in vlan_groups.json | json_query(query)
+  delegate_to: 127.0.0.1

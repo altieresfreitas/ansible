@@ -1,0 +1,4 @@
+---
+# defaults file for dnsmasq
+image: nginx
+tag: 1.20

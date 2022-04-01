@@ -1,0 +1,25 @@
+- name: Configura as portas do switch
+  hosts: switches
+
+  tasks:
+  - name: Configura interfaces na vlan 20
+    cisco.ios.ios_vlan:
+      vlan_id: 20
+      interfaces:
+      - GigabitEthernet0/1
+      - GigabitEthernet0/2
+      - GigabitEthernet0/3
+      - GigabitEthernet0/0
+
+#  - name: Configura Trunk
+#    cisco.ios.ios_l2_interfaces:
+#      config:
+#      - name: GigabitEthernet0/0
+#        mode: trunk
+#        trunk:
+#          allowed_vlans: 100-500
+#          native_vlan: 10
+#          encapsulation: dot1q
+
+
+

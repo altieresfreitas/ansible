@@ -1,0 +1,16 @@
+---
+autoLasthop: {{ auto_last_hop | default("default")}}
+bridgeInStandby: {{ bridge_in_standby | default("enabled") }}
+bridgeMulticast: {{ bridge_multicast | default("enabled") }}
+bridgeTraffic: {{ bridge_traffic | default("enabled") }}
+description: {{ description | default("teste")}}
+members:
+{% for member in members %}
+- /{{ partition | default("Common") }}/{{ member }}
+{% endfor %}
+migrationKeepalive: {{ migration_keepalive  | default("enabled") }}
+mode: {{ mode  | default("translucent") }}
+name: {{ name }}
+partition: {{ partition | default("Common") }}
+vwirePropagateLinkstatus: {{ vwire_propagate_linkstatus | default("disabled") }}
+

@@ -1,0 +1,92 @@
+- name: Configura big-ip
+  hosts: loadbalancer
+  gather_facts: false
+  vars:
+    provider:
+        password: "{{ f5.password }}"
+        server: "{{ inventory_hostname }}"
+        user: "{{ f5.user }}"
+        validate_certs: false
+  tasks:
+  - name: Configure vlans
+    bigip_vlan:
+      provider: "{{ provider }}"
+      untagged_interfaces: "{{ item.interfaces }}"
+      name: "{{ item.name }}"
+      tag: "{{ item.tag }}"
+    loop:
+      - { name: external, interfaces:  1.3, tag: 30}
+      - { name: internal, interfaces:  1.2, tag: 20}
+    delegate_to: 127.0.0.1
+
+  - name: include role to create vlan group
+    include_role:
+      name: vlan-group
+    vars:
+      name: bridge
+      partition: Common
+      members:
+      - external
+      - internal
+
+  - name: Create Self IP for vlans
+    bigip_selfip:
+      provider: "{{ provider }}"
+      address: "{{ item.address }}"
+      name: "{{ item.name }}"
+      netmask: "{{ item.netmask }}"
+      vlan: "{{ item.vlan }}"
+    loop:
+      - { name: bridge, vlan: bridge, address: 172.25.0.254, netmask: 255.255.255.0 }
+    delegate_to: 127.0.0.1
+
+  - name: Create static route with gateway address
+    bigip_static_route:
+      provider: "{{ provider }}"
+      destination: 0.0.0.0
+      netmask: 0.0.0.0
+      gateway_address: 172.25.0.1
+      name: default-gw
+    delegate_to: 127.0.0.1
+
+  - name: Create pool
+    bigip_pool:
+      provider: "{{ provider }}"
+      name: ansible-lab-pool
+      partition: Common
+      lb_method: round-robin
+      monitor_type: single
+      monitors:
+        - http
+    delegate_to: 127.0.0.1
+
+  - name: Add pool members
+    bigip_pool_member:
+      provider: "{{ provider }}"
+      pool: ansible-lab-pool
+      partition: Common
+      host: "{{ item.ip }}"
+      port: "{{ item.port }}"
+      description: "ansible lab web {{ item.name }} "
+      connection_limit: 100
+      rate_limit: 50
+      ratio: 2
+      state: present
+    delegate_to: 127.0.0.1
+    loop:
+      - { name: web-1, ip:  172.25.0.51, port: 80}
+      - { name: web-2, ip:  172.25.0.52, port: 80}
+
+  - name: Add virtual server
+    bigip_virtual_server:
+      provider: "{{ provider }}"
+      state: present
+      partition: Common
+      name: ansible-lab-virtual-server
+      destination: 172.25.0.20
+      port: 80
+      pool: ansible-lab-pool
+      description: Ansible Lab Virtual Server
+      profiles:
+        - http
+    delegate_to: 127.0.0.1

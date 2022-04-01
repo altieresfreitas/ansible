@@ -1,0 +1,22 @@
+[Unit]
+Description=DNSMasq Container
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker stop dnsmasq
+ExecStartPre=-/usr/bin/docker rm dnsmasq
+ExecStartPre=/usr/bin/docker pull 4km3/dnsmasq:{{ tag }}
+ExecStart=docker run --name dnsmasq --cap-add=NET_ADMIN  \
+                    --net=host -v /etc/dnsmasq:/etc/dnsmasq \
+                    -v /etc/dnsmasq.conf:/etc/dnsmasq.conf  \
+                    -v /var/lib/libvirt/dnsmasq/:/var/lib/libvirt/dnsmasq/ \
+                    -v /var/lib/dnsmasq:/var/lib/misc \
+                    {{ image }}:{{ tag }}
+
+[Install]
+WantedBy=multi-user.target
+
+

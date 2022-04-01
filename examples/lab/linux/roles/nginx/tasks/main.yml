@@ -1,0 +1,20 @@
+---
+# tasks file for nginx
+- name: copy systemd unit file
+  ansible.builtin.template:
+    src: systemd/nginx.service.j2
+    dest: /etc/systemd/system/nginx.service
+  notify: nginx - restart service
+
+- name: copy dnasmasq conf
+  ansible.builtin.copy:
+    src: nginx/nginx.conf
+    dest: /etc/nginx.conf
+  notify: nginx - restart service
+
+- name: ensure nginx is running
+  ansible.builtin.systemd:
+    name: nginx
+    daemon_reload: yes
+    state: started
+
